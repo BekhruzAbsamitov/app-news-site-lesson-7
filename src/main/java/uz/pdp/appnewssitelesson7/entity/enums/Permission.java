@@ -1,0 +1,14 @@
+package uz.pdp.appnewssitelesson7.entity.enums;
+
+public enum Permission {
+
+    ADD_USER, EDIT_USER, DELETE_USER, VIEW_USERS, // ADMIN
+
+    ADD_POSITION, EDIT_POSITION, DELETE_POSITION, VIEW_POSITIONS, // ADMIN
+
+    ADD_POST, EDIT_POST, DELETE_POST, VIEW_POST, //ADMIN, ...
+
+    ADD_COMMENT, EDIT_COMMENT, DELETE_MY_COMMENT, //ALL
+
+    DELETE_COMMENT //ADMIN, ...
+}
