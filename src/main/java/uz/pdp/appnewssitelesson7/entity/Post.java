@@ -16,7 +16,7 @@ import javax.persistence.EntityListeners;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-//@EntityListeners(AuditingEntityListener.class)
+@EntityListeners(AuditingEntityListener.class)
 public class Post extends AbstractEntity {
 
     @Column(nullable = false, columnDefinition = "text")

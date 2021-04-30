@@ -40,40 +40,25 @@ public class CommentService {
     }
 
     public ApiResponse edit(CommentDto commentDto, Long id) {
-
         final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (user == null)
             return new ApiResponse("User not found", false);
 
-        final List<Comment> comments = commentRepository.findAllByCreatedBy(user);
-        boolean isExits = false;
-        if (comments.isEmpty()) {
-            return new ApiResponse("User did not comment yet", false);
+        final Optional<Comment> allByCreatedByAndId = commentRepository.findAllByCreatedByAndId(user.getId(), id);
+        if (allByCreatedByAndId.isEmpty()) {
+            return new ApiResponse("User does not have comment with id:" + id, false);
         }
-        for (Comment comment : comments) {
-            if (comment.getId().equals(id))
-                isExits = true;
-            break;
-        }
+        final Comment comment = allByCreatedByAndId.get();
 
-        if (isExits) {
-            final Optional<Comment> optionalComment = commentRepository.findById(id);
-            if (optionalComment.isEmpty()) {
-                return new ApiResponse("Comment not found", false);
-            }
-            final Comment comment = optionalComment.get();
-
-            final Optional<Post> optionalPost = postRepository.findById(commentDto.getPostId());
-            if (optionalPost.isEmpty()) {
-                return new ApiResponse("Post not found", false);
-            }
-            final Post post = optionalPost.get();
-            comment.setPost(post);
-            comment.setText(commentDto.getText());
-            final Comment save = commentRepository.save(comment);
-            return new ApiResponse("Comment edited", true, save);
+        final Optional<Post> optionalPost = postRepository.findById(commentDto.getPostId());
+        if (optionalPost.isEmpty()) {
+            return new ApiResponse("Post not found", false);
         }
-        return null;
+        final Post post = optionalPost.get();
+        comment.setPost(post);
+        comment.setText(commentDto.getText());
+        final Comment save = commentRepository.save(comment);
+        return new ApiResponse("Comment edited", true, save);
     }
 
     public ApiResponse delete(Long id) {

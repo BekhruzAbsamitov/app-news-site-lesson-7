@@ -28,11 +28,11 @@ public abstract class AbstractEntity {
 
     @JoinColumn(updatable = false)
     @CreatedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User createdBy;
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private Long createdBy;
 
     @LastModifiedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User updatedBy;
+//    @ManyToOne(fetch = FetchType.LAZY)
+    private Long updatedBy;
 
 }

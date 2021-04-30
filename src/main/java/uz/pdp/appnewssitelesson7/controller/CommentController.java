@@ -26,6 +26,7 @@ public class CommentController {
         return ResponseEntity.status(response.isSuccess ? 201 : 409).body(response);
     }
 
+
     @PreAuthorize(value = "hasAuthority('EDIT_COMMENT')")
     @PutMapping("/{id}")
     public HttpEntity<?> edit(@PathVariable Long id, @RequestBody CommentDto commentDto) {
@@ -33,6 +34,8 @@ public class CommentController {
         return ResponseEntity.status(response.isSuccess ? 201 : 409).body(response);
     }
 
+
+    
     @PreAuthorize(value = "hasAuthority('DELETE_COMMENT')")
     @DeleteMapping("/{id}")
     public HttpEntity<?> delete(@PathVariable Long id) {
