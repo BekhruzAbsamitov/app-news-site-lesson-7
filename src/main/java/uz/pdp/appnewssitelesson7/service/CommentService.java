@@ -1,11 +1,13 @@
 package uz.pdp.appnewssitelesson7.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.pdp.appnewssitelesson7.dto.CommentDto;
 import uz.pdp.appnewssitelesson7.entity.ApiResponse;
 import uz.pdp.appnewssitelesson7.entity.Comment;
 import uz.pdp.appnewssitelesson7.entity.Post;
+import uz.pdp.appnewssitelesson7.entity.User;
 import uz.pdp.appnewssitelesson7.repository.CommentRepository;
 import uz.pdp.appnewssitelesson7.repository.PostRepository;
 
@@ -38,24 +40,40 @@ public class CommentService {
     }
 
     public ApiResponse edit(CommentDto commentDto, Long id) {
-        final Optional<Comment> optionalComment = commentRepository.findById(id);
-        if (optionalComment.isEmpty()) {
-            return new ApiResponse("Comment not found", false);
+
+        final User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null)
+            return new ApiResponse("User not found", false);
+
+        final List<Comment> comments = commentRepository.findAllByCreatedBy(user);
+        boolean isExits = false;
+        if (comments.isEmpty()) {
+            return new ApiResponse("User did not comment yet", false);
         }
-        final Comment comment = optionalComment.get();
-
-        final Optional<Post> optionalPost = postRepository.findById(commentDto.getPostId());
-        if (optionalPost.isEmpty()) {
-            return new ApiResponse("Post not found", false);
+        for (Comment comment : comments) {
+            if (comment.getId().equals(id))
+                isExits = true;
+            break;
         }
-        final Post post = optionalPost.get();
-        comment.setPost(post);
 
-        comment.setText(commentDto.getText());
+        if (isExits) {
+            final Optional<Comment> optionalComment = commentRepository.findById(id);
+            if (optionalComment.isEmpty()) {
+                return new ApiResponse("Comment not found", false);
+            }
+            final Comment comment = optionalComment.get();
 
-        final Comment save = commentRepository.save(comment);
-
-        return new ApiResponse("Comment edited", true, save);
+            final Optional<Post> optionalPost = postRepository.findById(commentDto.getPostId());
+            if (optionalPost.isEmpty()) {
+                return new ApiResponse("Post not found", false);
+            }
+            final Post post = optionalPost.get();
+            comment.setPost(post);
+            comment.setText(commentDto.getText());
+            final Comment save = commentRepository.save(comment);
+            return new ApiResponse("Comment edited", true, save);
+        }
+        return null;
     }
 
     public ApiResponse delete(Long id) {
